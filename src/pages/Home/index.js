@@ -1,31 +1,28 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-
-import data from './../../helpers/data.json';
+import Input from '../../components/common/Input';
 
 import ListUI from './../../components/lists/List';
 import { getUsers } from './../../store/actions';
 
 const Home = () => {
-    const [loading, setLoading] = useState(true)
     const users = useSelector(state => state.Users.users);
     const dispatch = useDispatch()
 
-    useEffect(() => {
-        dispatch(getUsers(data))
-    }, [dispatch])
-
-    useEffect(() => {
-        setTimeout(() => setLoading(false), 3000)
-    }, [])
+    const upload = (e) => {
+        const reader = new FileReader()
+        reader.onload = async (e) => {
+            const text = (e.target.result)
+            const f = JSON.parse(text)
+            dispatch(getUsers(f))
+        };
+        reader.readAsText(e.target.files[0])
+    }
 
     return (
         <Fragment>
-            {loading ?
-                <div className='loader'>Loading...</div>
-                :
-                <ListUI data={users} />
-            }
+            <Input type='file' onChange={upload} />
+            <ListUI data={users} />
         </Fragment>
     )
 }
